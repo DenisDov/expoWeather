@@ -1,5 +1,14 @@
 export function degreesToDirection(degrees) {
-  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+  const directions = [
+    "North",
+    "North East",
+    "East",
+    "South East",
+    "South",
+    "South West",
+    "West",
+    "North West",
+  ];
   const index = Math.round(degrees / 45) % 8;
   return directions[index];
 }

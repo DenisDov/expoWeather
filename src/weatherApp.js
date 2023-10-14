@@ -37,7 +37,7 @@ const WeatherApp = () => {
   const windDirection = degreesToDirection(weatherData.wind.deg);
 
   return (
-    <View>
+    <View style={{ padding: 16 }}>
       <Text>Temperature: {temperature}°C</Text>
       <Text>Feels like: {tempFeels}°C</Text>
       <Text>Description: {description}</Text>
@@ -45,7 +45,8 @@ const WeatherApp = () => {
       <Text>Sunrise: {sunrise}</Text>
       <Text>Sunset: {sunset}</Text>
       <Text>
-        Wind: speed {windSpeed} km/h | direction {windDirection}
+        Wind: speed {windSpeed} km/h
+        {windSpeed > 0 ? ` from ${windDirection}` : ""}
       </Text>
     </View>
   );
