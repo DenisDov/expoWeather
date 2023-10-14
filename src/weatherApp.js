@@ -1,19 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Text } from "react-native";
 import axios from "axios";
-
-function timestampToTime(timestamp) {
-  const date = new Date(timestamp * 1000); // Multiply by 1000 to convert from seconds to milliseconds
-  const hours = date.getHours().toString().padStart(2, "0"); // Get hours and format with leading zero
-  const minutes = date.getMinutes().toString().padStart(2, "0"); // Get minutes and format with leading zero
-  return `${hours}:${minutes}`;
-}
-
-function degreesToDirection(degrees) {
-  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
-  const index = Math.round(degrees / 45) % 8;
-  return directions[index];
-}
+import { timestampToTime } from "./utils/timestampToTime";
+import { degreesToDirection } from "./utils/degreesToDirection";
 
 const WeatherApp = () => {
   const [weatherData, setWeatherData] = useState(null);
