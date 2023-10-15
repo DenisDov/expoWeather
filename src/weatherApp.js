@@ -6,9 +6,11 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  Keyboard,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import dayjs from "dayjs";
+import { Image } from "expo-image";
 
 import { degreesToDirection } from "./utils/degreesToDirection";
 import { getLocations, getWeatherByCoords } from "./api/weather";
@@ -59,6 +61,11 @@ const WeatherApp = () => {
     fetchWeatherByCoords();
   }, [coords]);
 
+  function onLocationPressed(location) {
+    setCoords({ lat: location.lat, lon: location.lon });
+    Keyboard.dismiss();
+  }
+
   function renderWeather() {
     const currentLocation = `${weatherData.name}, ${weatherData.sys.country}`;
     const formattedDate = dayjs.unix(weatherData.dt).format("DD MMMM, HH:MM");
@@ -71,13 +78,11 @@ const WeatherApp = () => {
     const windSpeed = Math.round(weatherData.wind.speed);
     const windDirection = degreesToDirection(weatherData.wind.deg);
 
+    const weatherIconURL = `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@4x.png`;
+
     if (loading) {
       return (
-        <ActivityIndicator
-          size="large"
-          color="tomato"
-          style={styles.activityIndicator}
-        />
+        <ActivityIndicator size="large" style={styles.activityIndicator} />
       );
     }
 
@@ -91,12 +96,15 @@ const WeatherApp = () => {
             <Text>Feels like: {tempFeels}°C</Text>
             <Text>Pressure: {pressure} hPa</Text>
           </View>
-          <View style={{ flex: 1 }}>
-            <Text>ICON HERE</Text>
+          <View style={{ flex: 1, justifyContent: "center" }}>
+            <Image
+              style={styles.image}
+              source={weatherIconURL}
+              contentFit="cover"
+            />
+            <Text style={{ textAlign: "center" }}>{description}</Text>
           </View>
         </View>
-
-        {/* <Text>Description: {description}</Text> */}
 
         <View>
           <Text>Sunrise: {sunrise}</Text>
@@ -125,9 +133,7 @@ const WeatherApp = () => {
           <View style={styles.dropdown}>
             {locations.map((location) => (
               <TouchableOpacity
-                onPress={() =>
-                  setCoords({ lat: location.lat, lon: location.lon })
-                }
+                onPress={() => onLocationPressed(location)}
                 key={location.lat + location.lon}
                 style={styles.location}
               >
@@ -171,6 +177,10 @@ const styles = StyleSheet.create({
   },
   activityIndicator: {
     margin: 32,
+  },
+  image: {
+    flex: 1,
+    width: "100%",
   },
 });
 
