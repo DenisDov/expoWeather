@@ -60,6 +60,7 @@ const WeatherApp = () => {
   }, [coords]);
 
   function renderWeather() {
+    const currentLocation = `${weatherData.name}, ${weatherData.sys.country}`;
     const formattedDate = dayjs.unix(weatherData.dt).format("DD MMMM, HH:MM");
     const temperature = Math.round(weatherData.main.temp);
     const tempFeels = Math.round(weatherData.main.feels_like);
@@ -82,6 +83,7 @@ const WeatherApp = () => {
 
     return (
       <>
+        <Text>{currentLocation}</Text>
         <Text>{formattedDate}</Text>
         <View style={{ flexDirection: "row", gap: 16, marginBottom: 16 }}>
           <View style={{ flex: 1 }}>
@@ -127,6 +129,7 @@ const WeatherApp = () => {
                   setCoords({ lat: location.lat, lon: location.lon })
                 }
                 key={location.lat + location.lon}
+                style={styles.location}
               >
                 <Text>
                   {location.name}, {location.country}, {location.state}
@@ -156,12 +159,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   dropdown: {
-    backgroundColor: "red",
+    backgroundColor: "white",
     position: "absolute",
     zIndex: 1,
     top: 40,
     left: 0,
     right: 0,
+  },
+  location: {
+    padding: 8,
   },
   activityIndicator: {
     margin: 32,
