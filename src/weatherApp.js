@@ -6,7 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import axios from "axios";
+
 import { timestampToTime } from "./utils/timestampToTime";
 import { degreesToDirection } from "./utils/degreesToDirection";
 import { getLocations, getWeatherByCoords } from "./api/weather";
@@ -14,34 +14,46 @@ import { isEmpty } from "./utils/isEmpty";
 import useDebounce from "./hooks/useDebounce";
 
 const WeatherApp = () => {
-  const [text, onChangeText] = useState("");
-  const debouncedValue = useDebounce(text, 500);
+  const [query, setQuery] = useState("");
+  const debouncedValue = useDebounce(query, 500);
 
   const [locations, setLocations] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [coords, setCoords] = useState({});
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   async function fetchLocations() {
-    const response = await getLocations(text);
-    setLocations(response.data);
+    try {
+      const response = await getLocations(query);
+      setLocations(response.data);
+    } catch (error) {
+      setError(error.response);
+    }
   }
 
   async function fetchWeatherByCoords() {
-    const response = await getWeatherByCoords(coords);
-    setWeatherData(response.data);
+    setLoading(true);
+    try {
+      const response = await getWeatherByCoords(coords);
+      setWeatherData(response.data);
+    } catch (error) {
+      setError(error.response);
+    } finally {
+      setLoading(false);
+      setLocations(null);
+      setQuery("");
+    }
   }
 
   useEffect(() => {
-    if (!text || text.trim() === "") return;
+    if (!query || query.trim() === "") return;
     fetchLocations();
   }, [debouncedValue]);
 
   useEffect(() => {
     if (isEmpty(coords)) return;
     fetchWeatherByCoords();
-    setLocations(null);
-    onChangeText("");
   }, [coords]);
 
   function renderWeather() {
@@ -53,6 +65,16 @@ const WeatherApp = () => {
     const sunset = timestampToTime(weatherData.sys.sunset);
     const windSpeed = Math.round(weatherData.wind.speed);
     const windDirection = degreesToDirection(weatherData.wind.deg);
+
+    if (loading) {
+      return (
+        <ActivityIndicator
+          size="large"
+          color="tomato"
+          style={styles.activityIndicator}
+        />
+      );
+    }
 
     return (
       <>
@@ -72,21 +94,24 @@ const WeatherApp = () => {
 
   return (
     <View style={{ padding: 16 }}>
-      <TextInput
-        style={styles.input}
-        onChangeText={onChangeText}
-        value={text}
-      />
-      {locations?.map((location, index) => {
-        return (
-          <Text
-            key={index}
-            onPress={() => setCoords({ lat: location.lat, lon: location.lon })}
-          >
-            {location.name}, {location.country}, {location.state}
-          </Text>
-        );
-      })}
+      <TextInput style={styles.input} onChangeText={setQuery} value={query} />
+
+      {error && <Text>{error}</Text>}
+
+      {!isEmpty(locations) &&
+        locations.map((location, index) => {
+          return (
+            <Text
+              key={index}
+              onPress={() =>
+                setCoords({ lat: location.lat, lon: location.lon })
+              }
+            >
+              {location.name}, {location.country}, {location.state}
+            </Text>
+          );
+        })}
+
       {weatherData && renderWeather()}
     </View>
   );
@@ -97,6 +122,9 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     padding: 10,
+  },
+  activityIndicator: {
+    margin: 32,
   },
 });
 
