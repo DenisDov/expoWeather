@@ -1,55 +1,100 @@
-import React, { useState, useEffect } from "react";
-import { View, Text } from "react-native";
+import { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import axios from "axios";
 import { timestampToTime } from "./utils/timestampToTime";
 import { degreesToDirection } from "./utils/degreesToDirection";
+import { getLocations, getWeatherByCoords } from "./api/weather";
+import { isObjectEmpty } from "./utils/isObjectEmpty";
 
 const WeatherApp = () => {
+  const [text, onChangeText] = useState("");
+  const [locations, setLocations] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
+  const [coords, setCoords] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  const API_KEY = "094864a9f1f75981052798e99622bba7";
-  const CITY = "Kyiv";
-  const UNITS = "metric";
-  const API_URL = `https://api.openweathermap.org/data/2.5/weather?q=${CITY}&appid=${API_KEY}&units=${UNITS}`;
-
-  useEffect(() => {
-    axios
-      .get(API_URL)
-      .then((response) => {
-        setWeatherData(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching weather data: ", error);
-      });
-  }, []);
-
-  if (!weatherData) {
-    return <Text>Loading...</Text>;
+  async function fetchLocations() {
+    const response = await getLocations(text);
+    setLocations(response.data);
   }
 
-  const temperature = Math.round(weatherData.main.temp);
-  const tempFeels = Math.round(weatherData.main.feels_like);
-  const description = weatherData.weather[0].description;
-  const pressure = weatherData.main.pressure;
-  const sunrise = timestampToTime(weatherData.sys.sunrise);
-  const sunset = timestampToTime(weatherData.sys.sunset);
-  const windSpeed = Math.round(weatherData.wind.speed);
-  const windDirection = degreesToDirection(weatherData.wind.deg);
+  async function fetchWeatherByCoords() {
+    const response = await getWeatherByCoords(coords);
+    setWeatherData(response.data);
+  }
+
+  useEffect(() => {
+    if (!text || text.trim() === "") return;
+    fetchLocations();
+  }, [text]);
+
+  useEffect(() => {
+    if (isObjectEmpty(coords)) return;
+    fetchWeatherByCoords();
+    setLocations(null);
+    onChangeText("");
+  }, [coords]);
+
+  function renderWeather() {
+    const temperature = Math.round(weatherData.main.temp);
+    const tempFeels = Math.round(weatherData.main.feels_like);
+    const description = weatherData.weather[0].description;
+    const pressure = weatherData.main.pressure;
+    const sunrise = timestampToTime(weatherData.sys.sunrise);
+    const sunset = timestampToTime(weatherData.sys.sunset);
+    const windSpeed = Math.round(weatherData.wind.speed);
+    const windDirection = degreesToDirection(weatherData.wind.deg);
+
+    return (
+      <>
+        <Text>Temperature: {temperature}°C</Text>
+        <Text>Feels like: {tempFeels}°C</Text>
+        <Text>Description: {description}</Text>
+        <Text>Pressure: {pressure} hPa</Text>
+        <Text>Sunrise: {sunrise}</Text>
+        <Text>Sunset: {sunset}</Text>
+        <Text>
+          Wind: speed {windSpeed} km/h
+          {windSpeed > 0 ? ` from ${windDirection}` : ""}
+        </Text>
+      </>
+    );
+  }
 
   return (
     <View style={{ padding: 16 }}>
-      <Text>Temperature: {temperature}°C</Text>
-      <Text>Feels like: {tempFeels}°C</Text>
-      <Text>Description: {description}</Text>
-      <Text>Pressure: {pressure} hPa</Text>
-      <Text>Sunrise: {sunrise}</Text>
-      <Text>Sunset: {sunset}</Text>
-      <Text>
-        Wind: speed {windSpeed} km/h
-        {windSpeed > 0 ? ` from ${windDirection}` : ""}
-      </Text>
+      <TextInput
+        style={styles.input}
+        onChangeText={onChangeText}
+        value={text}
+      />
+      {locations?.map((location, index) => {
+        return (
+          <Text
+            key={index}
+            onPress={() => setCoords({ lat: location.lat, lon: location.lon })}
+          >
+            {location.name}, {location.country}, {location.state}
+          </Text>
+        );
+      })}
+      {weatherData && renderWeather()}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  input: {
+    height: 40,
+    borderWidth: 1,
+    padding: 10,
+  },
+});
 
 export default WeatherApp;
