@@ -10,7 +10,7 @@ import axios from "axios";
 import { timestampToTime } from "./utils/timestampToTime";
 import { degreesToDirection } from "./utils/degreesToDirection";
 import { getLocations, getWeatherByCoords } from "./api/weather";
-import { isObjectEmpty } from "./utils/isObjectEmpty";
+import { isEmpty } from "./utils/isEmpty";
 
 const WeatherApp = () => {
   const [text, onChangeText] = useState("");
@@ -35,7 +35,7 @@ const WeatherApp = () => {
   }, [text]);
 
   useEffect(() => {
-    if (isObjectEmpty(coords)) return;
+    if (isEmpty(coords)) return;
     fetchWeatherByCoords();
     setLocations(null);
     onChangeText("");
