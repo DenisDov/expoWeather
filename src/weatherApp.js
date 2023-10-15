@@ -11,9 +11,12 @@ import { timestampToTime } from "./utils/timestampToTime";
 import { degreesToDirection } from "./utils/degreesToDirection";
 import { getLocations, getWeatherByCoords } from "./api/weather";
 import { isEmpty } from "./utils/isEmpty";
+import useDebounce from "./hooks/useDebounce";
 
 const WeatherApp = () => {
   const [text, onChangeText] = useState("");
+  const debouncedValue = useDebounce(text, 500);
+
   const [locations, setLocations] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [coords, setCoords] = useState({});
@@ -32,7 +35,7 @@ const WeatherApp = () => {
   useEffect(() => {
     if (!text || text.trim() === "") return;
     fetchLocations();
-  }, [text]);
+  }, [debouncedValue]);
 
   useEffect(() => {
     if (isEmpty(coords)) return;
