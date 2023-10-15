@@ -63,7 +63,7 @@ const WeatherApp = () => {
         <Text>Sunrise: {sunrise}</Text>
         <Text>Sunset: {sunset}</Text>
         <Text>
-          Wind: speed {windSpeed} km/h
+          Wind speed: {windSpeed} km/h
           {windSpeed > 0 ? ` from ${windDirection}` : ""}
         </Text>
       </>
