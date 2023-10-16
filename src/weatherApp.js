@@ -11,12 +11,12 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import dayjs from "dayjs";
 import { Image } from "expo-image";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { degreesToDirection } from "./utils/degreesToDirection";
 import { getLocations, getWeatherByCoords } from "./api/weather";
 import { isEmpty } from "./utils/isEmpty";
 import useDebounce from "./hooks/useDebounce";
-import dummyData from "./utils/dummyData";
 
 const WeatherApp = () => {
   const [query, setQuery] = useState("");
@@ -42,6 +42,8 @@ const WeatherApp = () => {
     try {
       const response = await getWeatherByCoords(coords);
       setWeatherData(response.data);
+      // Save the coordinates to AsyncStorage
+      await AsyncStorage.setItem("lastSearchedCoords", JSON.stringify(coords));
     } catch (error) {
       setError(error.message);
     } finally {
@@ -50,6 +52,24 @@ const WeatherApp = () => {
       setQuery("");
     }
   }
+
+  // Retrieve the last searched coordinates from AsyncStorage
+  async function fetchLastSearchedCoords() {
+    try {
+      const lastSearchedCoords = await AsyncStorage.getItem(
+        "lastSearchedCoords"
+      );
+      if (lastSearchedCoords) {
+        setCoords(JSON.parse(lastSearchedCoords));
+      }
+    } catch (error) {
+      console.error("Error retrieving last searched coordinates:", error);
+    }
+  }
+
+  useEffect(() => {
+    fetchLastSearchedCoords();
+  }, []);
 
   useEffect(() => {
     if (!query || query.trim() === "") return;
@@ -147,7 +167,7 @@ const WeatherApp = () => {
       </View>
 
       {error && <Text>{error}</Text>}
-      {weatherData ? renderWeather() : <Text>Add your location first</Text>}
+      {weatherData && renderWeather()}
     </View>
   );
 };
