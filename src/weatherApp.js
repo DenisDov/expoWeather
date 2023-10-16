@@ -33,7 +33,7 @@ const WeatherApp = () => {
       const response = await getLocations(query);
       setLocations(response.data);
     } catch (error) {
-      setError(error.response);
+      setError(error.message);
     }
   }
 
@@ -43,7 +43,7 @@ const WeatherApp = () => {
       const response = await getWeatherByCoords(coords);
       setWeatherData(response.data);
     } catch (error) {
-      setError(error.response);
+      setError(error.message);
     } finally {
       setLoading(false);
       setLocations(null);
@@ -121,7 +121,7 @@ const WeatherApp = () => {
   return (
     <View style={{ flex: 1, padding: 16 }}>
       <LinearGradient colors={["#8e9eab", "#eef2f3"]} style={styles.overlay} />
-      <View>
+      <View style={{ zIndex: 1 }}>
         <TextInput
           style={styles.input}
           onChangeText={setQuery}
@@ -145,8 +145,9 @@ const WeatherApp = () => {
           </View>
         )}
       </View>
+
       {error && <Text>{error}</Text>}
-      {weatherData && renderWeather()}
+      {weatherData ? renderWeather() : <Text>Add your location first</Text>}
     </View>
   );
 };
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     borderRadius: 8,
-    borderColor: "black",
+    borderColor: "#48484A",
     backgroundColor: "white",
     padding: 10,
     marginBottom: 16,
