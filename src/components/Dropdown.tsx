@@ -1,6 +1,19 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
-export function Dropdown({ locations, onLocationPress }) {
+interface Location {
+  name: string;
+  country: string;
+  state?: string;
+  lat: number;
+  lon: number;
+}
+
+interface DropdownProps {
+  locations: Location[];
+  onLocationPress: (location: Location) => void;
+}
+
+export function Dropdown({ locations, onLocationPress }: DropdownProps) {
   return (
     <View style={styles.dropdown}>
       {locations.map((location) => {
