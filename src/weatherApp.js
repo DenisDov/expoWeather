@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Keyboard,
+  Pressable,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import dayjs from "dayjs";
@@ -140,7 +141,11 @@ const WeatherApp = () => {
   }
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
+    <Pressable
+      // close dropdown by click outside
+      onPress={() => setLocations(null)}
+      style={{ flex: 1, padding: 16 }}
+    >
       <LinearGradient colors={["#8e9eab", "#eef2f3"]} style={styles.overlay} />
       <View style={{ zIndex: 1 }}>
         <TextInput
@@ -160,7 +165,7 @@ const WeatherApp = () => {
 
       {error && <Text>{error}</Text>}
       {weatherData && renderWeather()}
-    </View>
+    </Pressable>
   );
 };
 
@@ -177,7 +182,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 16,
   },
-
   activityIndicator: {
     margin: 32,
   },

@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
     top: 40,
     left: 0,
     right: 0,
+    borderRadius: 8,
   },
   location: {
     padding: 8,
