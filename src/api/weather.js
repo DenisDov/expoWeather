@@ -3,7 +3,7 @@ import { api } from "./index";
 const getLocations = async (query) =>
   api.get(`/geo/1.0/direct?q=${query}&limit=5`);
 
-const getWeatherByCoords = async (query) =>
-  api.get(`/data/2.5/weather?lat=${query.lat}&lon=${query.lon}`);
+const getWeatherByCoords = async (coords) =>
+  api.get(`/data/2.5/weather?lat=${coords.lat}&lon=${coords.lon}`);
 
 export { getLocations, getWeatherByCoords };
