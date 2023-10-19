@@ -17,6 +17,7 @@ import { degreesToDirection } from "./utils/degreesToDirection";
 import { getLocations, getWeatherByCoords } from "./api/weather";
 import { isEmpty } from "./utils/isEmpty";
 import useDebounce from "./hooks/useDebounce";
+import { Dropdown } from "./components/Dropdown";
 
 const WeatherApp = () => {
   const [query, setQuery] = useState("");
@@ -81,7 +82,7 @@ const WeatherApp = () => {
     fetchWeatherByCoords();
   }, [coords]);
 
-  function onLocationPressed(location) {
+  function handleLocationPressed(location) {
     setCoords({ lat: location.lat, lon: location.lon });
     Keyboard.dismiss();
   }
@@ -150,19 +151,10 @@ const WeatherApp = () => {
           autoCorrect={false}
         />
         {!isEmpty(locations) && (
-          <View style={styles.dropdown}>
-            {locations.map((location) => (
-              <TouchableOpacity
-                onPress={() => onLocationPressed(location)}
-                key={location.lat + location.lon}
-                style={styles.location}
-              >
-                <Text>
-                  {location.name}, {location.country}, {location.state}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <Dropdown
+            locations={locations}
+            onLocationPress={handleLocationPressed}
+          />
         )}
       </View>
 
@@ -185,17 +177,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 16,
   },
-  dropdown: {
-    backgroundColor: "white",
-    position: "absolute",
-    zIndex: 1,
-    top: 40,
-    left: 0,
-    right: 0,
-  },
-  location: {
-    padding: 8,
-  },
+
   activityIndicator: {
     margin: 32,
   },
