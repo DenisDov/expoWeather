@@ -6,7 +6,7 @@ import {
   initialWindowMetrics,
 } from "react-native-safe-area-context";
 
-import WeatherApp from "./src/weatherApp";
+import { WeatherApp } from "./src/weatherApp";
 
 export default function App() {
   return (

@@ -1,4 +1,6 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
+
+import { Text } from "./Text";
 
 interface Location {
   name: string;
@@ -35,7 +37,7 @@ export function Dropdown({ locations, onLocationPress }: DropdownProps) {
 
 const styles = StyleSheet.create({
   dropdown: {
-    backgroundColor: "white",
+    backgroundColor: "#24262D",
     position: "absolute",
     zIndex: 1,
     top: 40,

@@ -1,25 +1,28 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import dayjs from "dayjs";
 import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
 import {
   View,
-  Text,
+  // Text,
   TextInput,
   StyleSheet,
   ActivityIndicator,
   Keyboard,
   Pressable,
+  ScrollView,
+  RefreshControl,
 } from "react-native";
 
 import { getLocations, getWeatherByCoords } from "./api/weather";
+import { Card } from "./components/Card";
 import { Dropdown } from "./components/Dropdown";
+import { Text } from "./components/Text";
 import useDebounce from "./hooks/useDebounce";
 import { degreesToDirection } from "./utils/degreesToDirection";
 import { isEmpty } from "./utils/isEmpty";
 
-const WeatherApp = () => {
+export const WeatherApp = () => {
   const [query, setQuery] = useState("");
   const debouncedValue = useDebounce(query, 500);
 
@@ -28,6 +31,8 @@ const WeatherApp = () => {
   const [coords, setCoords] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   async function fetchLocations() {
     try {
@@ -67,6 +72,15 @@ const WeatherApp = () => {
     }
   }
 
+  async function handleRefresh() {
+    setIsRefreshing(true);
+    try {
+      await fetchLastSearchedCoords();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }
+
   useEffect(() => {
     fetchLastSearchedCoords();
   }, []);
@@ -85,6 +99,19 @@ const WeatherApp = () => {
     setCoords({ lat: location.lat, lon: location.lon });
     Keyboard.dismiss();
   }
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
+  const handleReset = () => {
+    setLocations([]);
+    setIsFocused(false);
+  };
 
   function renderWeather() {
     const currentLocation = `${weatherData.name}, ${weatherData.sys.country}`;
@@ -110,53 +137,53 @@ const WeatherApp = () => {
 
     return (
       <>
-        <Text>{currentLocation}</Text>
-        <Text>{formattedDate}</Text>
-        <View style={{ flexDirection: "row", gap: 16, marginBottom: 16 }}>
-          <View style={{ flex: 1 }}>
+        <Card>
+          <Text>{currentLocation}</Text>
+          <Text>{formattedDate}</Text>
+        </Card>
+        <View style={{ flexDirection: "row", gap: 16, marginVertical: 16 }}>
+          <Card style={{ flex: 1 }}>
             <Text style={{ fontSize: 64 }}>{temperature}°</Text>
             <Text>
               Day {tempMax}°↑ • Night {tempMin}°↓
             </Text>
             <Text>Feels like: {tempFeels}°</Text>
             <Text>Pressure: {pressure} hPa</Text>
-          </View>
-          <View style={{ flex: 1, justifyContent: "center" }}>
+          </Card>
+          <Card style={{ flex: 1, justifyContent: "center" }}>
             <Image
               style={styles.image}
               source={weatherIconURL}
               contentFit="cover"
             />
             <Text style={{ textAlign: "center" }}>{description}</Text>
-          </View>
+          </Card>
         </View>
 
-        <View>
+        <Card>
           <Text>Sunrise: {sunrise}</Text>
           <Text>Sunset: {sunset}</Text>
           <Text>
             Wind speed: {windSpeed} km/h
             {windSpeed > 0 ? ` from ${windDirection}` : ""}
           </Text>
-        </View>
+        </Card>
       </>
     );
   }
 
   return (
-    <Pressable
-      // close dropdown by click outside
-      onPress={() => setLocations([])}
-      style={{ flex: 1, padding: 16 }}
-    >
-      <LinearGradient colors={["#8e9eab", "#eef2f3"]} style={styles.overlay} />
+    <View style={{ flex: 1, padding: 16, backgroundColor: "#0D0F14" }}>
       <View style={{ zIndex: 1 }}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, isFocused && styles.focusedInput]}
           onChangeText={setQuery}
           value={query}
           placeholder="Search place"
           autoCorrect={false}
+          placeholderTextColor="#9CA3AF"
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
         {!isEmpty(locations) && (
           <Dropdown
@@ -165,10 +192,24 @@ const WeatherApp = () => {
           />
         )}
       </View>
-
-      {error && <Text>{error}</Text>}
-      {weatherData && renderWeather()}
-    </Pressable>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            colors={["white"]}
+            tintColor="white"
+          />
+        }
+        contentContainerStyle={{ flex: 1, paddingTop: 16 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <Pressable onPress={handleReset} style={{ flex: 1 }}>
+          {error && <Text>{error}</Text>}
+          {weatherData && renderWeather()}
+        </Pressable>
+      </ScrollView>
+    </View>
   );
 };
 
@@ -177,13 +218,16 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
   input: {
+    color: "white",
     height: 40,
     borderWidth: 1,
     borderRadius: 8,
-    borderColor: "#48484A",
-    backgroundColor: "white",
+    borderColor: "#353841",
+    backgroundColor: "#24262D",
     padding: 10,
-    marginBottom: 16,
+  },
+  focusedInput: {
+    borderColor: "#F2F6FA",
   },
   activityIndicator: {
     margin: 32,
@@ -193,5 +237,3 @@ const styles = StyleSheet.create({
     width: "100%",
   },
 });
-
-export default WeatherApp;
