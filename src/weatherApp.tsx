@@ -24,7 +24,7 @@ const WeatherApp = () => {
   const [query, setQuery] = useState("");
   const debouncedValue = useDebounce(query, 500);
 
-  const [locations, setLocations] = useState(null);
+  const [locations, setLocations] = useState([]);
   const [weatherData, setWeatherData] = useState(null);
   const [coords, setCoords] = useState({});
   const [loading, setLoading] = useState(false);
@@ -143,7 +143,7 @@ const WeatherApp = () => {
   return (
     <Pressable
       // close dropdown by click outside
-      onPress={() => setLocations(null)}
+      onPress={() => setLocations([])}
       style={{ flex: 1, padding: 16 }}
     >
       <LinearGradient colors={["#8e9eab", "#eef2f3"]} style={styles.overlay} />
@@ -171,7 +171,7 @@ const WeatherApp = () => {
 
 const styles = StyleSheet.create({
   overlay: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
   },
   input: {
     height: 40,

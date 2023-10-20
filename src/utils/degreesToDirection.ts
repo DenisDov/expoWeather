@@ -1,5 +1,5 @@
-export function degreesToDirection(degrees) {
-  const directions = [
+export function degreesToDirection(degrees: number): string {
+  const directions: string[] = [
     "North",
     "North East",
     "East",
@@ -9,6 +9,6 @@ export function degreesToDirection(degrees) {
     "West",
     "North West",
   ];
-  const index = Math.round(degrees / 45) % 8;
+  const index: number = Math.round(degrees / 45) % 8;
   return directions[index];
 }
