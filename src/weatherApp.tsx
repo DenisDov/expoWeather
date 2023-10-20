@@ -1,3 +1,7 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import dayjs from "dayjs";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useState, useEffect } from "react";
 import {
   View,
@@ -5,20 +9,15 @@ import {
   TextInput,
   StyleSheet,
   ActivityIndicator,
-  TouchableOpacity,
   Keyboard,
   Pressable,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import dayjs from "dayjs";
-import { Image } from "expo-image";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import { degreesToDirection } from "./utils/degreesToDirection";
 import { getLocations, getWeatherByCoords } from "./api/weather";
-import { isEmpty } from "./utils/isEmpty";
-import useDebounce from "./hooks/useDebounce";
 import { Dropdown } from "./components/Dropdown";
+import useDebounce from "./hooks/useDebounce";
+import { degreesToDirection } from "./utils/degreesToDirection";
+import { isEmpty } from "./utils/isEmpty";
 
 const WeatherApp = () => {
   const [query, setQuery] = useState("");
@@ -58,9 +57,8 @@ const WeatherApp = () => {
   // Retrieve the last searched coordinates from AsyncStorage
   async function fetchLastSearchedCoords() {
     try {
-      const lastSearchedCoords = await AsyncStorage.getItem(
-        "lastSearchedCoords"
-      );
+      const lastSearchedCoords =
+        await AsyncStorage.getItem("lastSearchedCoords");
       if (lastSearchedCoords) {
         setCoords(JSON.parse(lastSearchedCoords));
       }
@@ -93,6 +91,8 @@ const WeatherApp = () => {
     const formattedDate = dayjs.unix(weatherData.dt).format("DD MMMM, HH:MM");
     const temperature = Math.round(weatherData.main.temp);
     const tempFeels = Math.round(weatherData.main.feels_like);
+    const tempMin = Math.round(weatherData.main.temp_min);
+    const tempMax = Math.round(weatherData.main.temp_max);
     const description = weatherData.weather[0].description;
     const pressure = weatherData.main.pressure;
     const sunrise = dayjs.unix(weatherData.sys.sunrise).format("HH:MM");
@@ -114,8 +114,11 @@ const WeatherApp = () => {
         <Text>{formattedDate}</Text>
         <View style={{ flexDirection: "row", gap: 16, marginBottom: 16 }}>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 64 }}>{temperature}°C</Text>
-            <Text>Feels like: {tempFeels}°C</Text>
+            <Text style={{ fontSize: 64 }}>{temperature}°</Text>
+            <Text>
+              Day {tempMax}°↑ • Night {tempMin}°↓
+            </Text>
+            <Text>Feels like: {tempFeels}°</Text>
             <Text>Pressure: {pressure} hPa</Text>
           </View>
           <View style={{ flex: 1, justifyContent: "center" }}>

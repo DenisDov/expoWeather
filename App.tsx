@@ -1,11 +1,11 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet } from "react-native";
-
 import {
   SafeAreaProvider,
   SafeAreaView,
   initialWindowMetrics,
 } from "react-native-safe-area-context";
+
 import WeatherApp from "./src/weatherApp";
 
 export default function App() {
