@@ -173,7 +173,7 @@ export const WeatherApp = () => {
   }
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: "#0D0F14" }}>
+    <View style={{ flex: 1, padding: 16 }}>
       <View style={{ zIndex: 1 }}>
         <TextInput
           style={[styles.input, isFocused && styles.focusedInput]}

@@ -12,7 +12,7 @@ export default function App() {
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
       <SafeAreaView style={styles.container}>
-        <StatusBar style="auto" />
+        <StatusBar style="light" backgroundColor="#24262D" />
         <WeatherApp />
       </SafeAreaView>
     </SafeAreaProvider>
@@ -22,6 +22,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#0D0F14",
   },
 });
